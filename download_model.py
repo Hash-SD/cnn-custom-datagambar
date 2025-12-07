@@ -13,7 +13,7 @@ MODEL_FILE = MODEL_DIR / "best_model.keras"
 # To get file ID: Share file > Copy link > Extract ID from URL
 # Example URL: https://drive.google.com/file/d/1ABC123xyz/view
 # File ID would be: 1ABC123xyz
-GDRIVE_FILE_ID = "YOUR_GOOGLE_DRIVE_FILE_ID"
+GDRIVE_FILE_ID = "1pmZlycIZl6B6EMH1V31NNI29w6128DcV"
 
 
 def download_from_gdrive(file_id: str, destination: Path) -> bool:
