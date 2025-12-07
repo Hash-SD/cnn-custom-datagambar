@@ -188,15 +188,11 @@ def inject_custom_css():
 def render_sidebar():
     """Render sidebar dengan komponen Streamlit native."""
     with st.sidebar:
-        # Styled to match the main title (Identifikasi Alat Tulis)
-        st.markdown("""
-        <div style="font-family: 'Google Sans', sans-serif; font-size: 2.5rem; font-weight: 500; color: #202124; margin-bottom: 0.5rem; line-height: 1.2;">
-            🧠 CogniDesk
-        </div>
-        """, unsafe_allow_html=True)
+        st.title("🧠 CogniDesk")
+        st.caption("🚀 AI Stationery Detector")
         
         # Mode Selection
-        st.caption("Pengaturan")
+        st.markdown("### ⚙️ Pengaturan")
         mode = st.radio(
             "Mode Tampilan",
             ["Simple", "Expert"],
@@ -229,13 +225,11 @@ def get_prediction_engine():
 
 
 def render_main_header():
-    """Render main content header - Google Style."""
-    st.markdown("""
-    <div class="main-header">
-        <div class="main-title">Identifikasi Alat Tulis</div>
-        <div class="main-subtitle">Powered by CogniDesk AI</div>
-    </div>
-    """, unsafe_allow_html=True)
+    """Render main content header - Standard Streamlit."""
+    st.title("✨ Identifikasi Alat Tulis")
+    st.markdown("### 🤖 Powered by CogniDesk AI")
+    st.markdown("---")
+    st.info("👋 Selamat datang! Upload gambar alat tulis (Pensil, Penghapus, atau Kertas) untuk dianalisis.")
 
 
 def get_emoji_for_class(class_name: str) -> str:
@@ -258,18 +252,13 @@ def render_analysis_result(result):
     emoji = get_emoji_for_class(result.predicted_class)
     user_mode = st.session_state.get("user_mode", "simple")
     
-    # Clean Result Card
-    st.markdown(f"""
-    <div class="result-card">
-        <div class="result-emoji">{emoji}</div>
-        <div class="result-title">{result.predicted_class.title()}</div>
-        <div class="result-confidence">{result.percentage:.1f}% Confidence</div>
-    </div>
-    """, unsafe_allow_html=True)
+    # Standard Streamlit Header & Metric
+    st.header(f"{emoji} {result.predicted_class.title()}")
+    st.metric("Confidence", f"{result.percentage:.1f}%")
     
     # Expert Mode Content
     if user_mode == "expert":
-        st.markdown("### Detailed Analysis")
+        st.markdown("### 📊 Detailed Analysis")
         
         for pred in result.top_predictions:
             col_name, col_bar, col_val = st.columns([2, 6, 2])
@@ -280,7 +269,7 @@ def render_analysis_result(result):
             with col_val:
                 st.write(f"{pred['percentage']:.1f}%")
         
-        with st.expander("Raw JSON Data"):
+        with st.expander("🔍 Raw JSON Data"):
             st.json(result.top_predictions)
 
 
@@ -310,17 +299,14 @@ def render_twin_frames(image: Image.Image, source_name: str):
 
 
 def render_input_section():
-    """Render input section - Google Search Style."""
-    
-    # Central Action Area
-    st.markdown('<div class="material-card">', unsafe_allow_html=True)
+    """Render input section - Standard Streamlit."""
     
     # Tabs for Upload vs Camera
-    tab_upload, tab_camera = st.tabs(["Upload Image", "Use Camera"])
+    tab_upload, tab_camera = st.tabs(["📂 Upload Gambar", "📸 Ambil Foto"])
     
     with tab_upload:
         uploaded_file = st.file_uploader(
-            "Choose an image",
+            "Pilih gambar",
             type=["jpg", "jpeg", "png"],
             label_visibility="collapsed"
         )
@@ -330,16 +316,14 @@ def render_input_section():
                 image = Image.open(uploaded_file)
                 render_twin_frames(image, uploaded_file.name)
             except Exception:
-                st.error("Invalid file format.")
+                st.error("❌ Format file tidak valid.")
     
     with tab_camera:
-        if st.checkbox("Enable Camera"):
-            camera_image = st.camera_input("Take a photo", label_visibility="collapsed")
+        if st.checkbox("📸 Aktifkan Kamera"):
+            camera_image = st.camera_input("Ambil foto", label_visibility="collapsed")
             if camera_image:
                 image = Image.open(camera_image)
                 render_twin_frames(image, "Camera Capture")
-                
-    st.markdown('</div>', unsafe_allow_html=True)
 
 
 def resize_sample_image(img: Image.Image, target_size: tuple = (200, 150)) -> Image.Image:
@@ -362,8 +346,8 @@ def resize_sample_image(img: Image.Image, target_size: tuple = (200, 150)) -> Im
 
 
 def render_sample_section():
-    """Render sample images section - Minimalist."""
-    st.markdown('<div style="text-align: center; margin-top: 2rem; color: #5f6368;">Or try these examples</div>', unsafe_allow_html=True)
+    """Render sample images section - Standard Streamlit."""
+    st.markdown("### 🧪 Coba Contoh Gambar")
     
     samples_dir = Path("samples")
     if not samples_dir.exists():
@@ -382,7 +366,7 @@ def render_sample_section():
         filepath = samples_dir / filename
         if filepath.exists():
             with col:
-                if st.button(label, key=f"try_{key}", use_container_width=True):
+                if st.button(f"🔍 {label}", key=f"try_{key}", use_container_width=True):
                     img = Image.open(filepath)
                     render_twin_frames(img, f"Sample: {label}")
 
