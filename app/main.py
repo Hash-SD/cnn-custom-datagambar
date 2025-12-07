@@ -565,47 +565,41 @@ def get_confidence_class(percentage: float) -> str:
 
 
 def render_analysis_result(result):
-    """Render analysis result in the right frame."""
+    """Render analysis result using native Streamlit components."""
     emoji = get_emoji_for_class(result.predicted_class)
-    conf_class = get_confidence_class(result.percentage)
-    label_class = "warning" if result.percentage < 50 else ""
     
-    # Build detail predictions HTML
-    details_html = ""
+    # Main emoji
+    st.markdown(f"<div style='text-align:center; font-size:4rem;'>{emoji}</div>", unsafe_allow_html=True)
+    
+    # Result label
+    if result.percentage >= 50:
+        st.success(f"🎯 **{result.predicted_class.upper()}** DETECTED")
+    else:
+        st.warning(f"🤔 **{result.predicted_class.upper()}** DETECTED")
+    
+    # Confidence display
+    col_label, col_value = st.columns([2, 1])
+    with col_label:
+        st.write("**Confidence Level:**")
+    with col_value:
+        st.write(f"**{result.percentage:.1f}%**")
+    
+    st.progress(result.confidence)
+    
+    st.divider()
+    
+    # All predictions with progress bars
+    st.write("**📊 All Predictions:**")
+    
     for pred in result.top_predictions:
         pred_emoji = get_emoji_for_class(pred["class"])
         pct = pred["percentage"]
-        color = "#10B981" if pct >= 80 else "#F59E0B" if pct >= 50 else "#EF4444"
-        details_html += f"""
-        <div class="detail-item">
-            <span class="detail-item-emoji">{pred_emoji}</span>
-            <span class="detail-item-name">{pred['class']}</span>
-            <span class="detail-item-value" style="color: {color};">{pct:.1f}%</span>
-        </div>
-        """
-    
-    # Render complete HTML in one block
-    st.markdown(f"""
-    <div class="analysis-result">
-        <div class="result-emoji">{emoji}</div>
-        <div class="result-label {label_class}">{result.predicted_class.upper()} DETECTED</div>
         
-        <div class="confidence-container">
-            <div class="confidence-label">
-                <span class="confidence-text">Confidence Level</span>
-                <span class="confidence-value">{result.percentage:.1f}%</span>
-            </div>
-            <div class="confidence-bar-bg">
-                <div class="confidence-bar-fill {conf_class}" style="width: {result.percentage}%;"></div>
-            </div>
-        </div>
-        
-        <div class="detail-predictions">
-            <div class="detail-title">All Predictions</div>
-            {details_html}
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+        col_a, col_b = st.columns([3, 1])
+        with col_a:
+            st.progress(pred["confidence"])
+        with col_b:
+            st.write(f"{pred_emoji} {pct:.1f}%")
 
 
 def render_twin_frames(image: Image.Image, source_name: str):
