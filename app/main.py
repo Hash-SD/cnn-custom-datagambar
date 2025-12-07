@@ -609,9 +609,28 @@ def render_input_section():
                     st.error("Gagal memproses foto. Silakan coba lagi.")
 
 
+def resize_sample_image(img: Image.Image, target_size: tuple = (200, 150)) -> Image.Image:
+    """Resize sample image ke ukuran tetap dengan padding untuk menjaga aspek rasio."""
+    # Buat canvas dengan ukuran target dan background putih
+    canvas = Image.new("RGB", target_size, (255, 255, 255))
+    
+    # Resize image dengan menjaga aspek rasio
+    img_copy = img.copy()
+    img_copy.thumbnail(target_size, Image.Resampling.LANCZOS)
+    
+    # Hitung posisi untuk center image
+    x = (target_size[0] - img_copy.width) // 2
+    y = (target_size[1] - img_copy.height) // 2
+    
+    # Paste image ke canvas
+    canvas.paste(img_copy, (x, y))
+    
+    return canvas
+
+
 def render_sample_section():
-    """Render sample images section."""
-    with st.expander("🎯 Coba dengan Contoh Gambar"):
+    """Render sample images section dengan ukuran gambar yang sama."""
+    with st.expander("Coba dengan Contoh Gambar"):
         samples_dir = Path("samples")
         
         if not samples_dir.exists():
@@ -621,20 +640,25 @@ def render_sample_section():
         col1, col2, col3 = st.columns(3)
         
         sample_files = {
-            "eraser": ("eraser_sample.jpg", "🧹 Eraser"),
-            "kertas": ("kertas_sample.jpg", "📄 Kertas"),
-            "pensil": ("pensil_sample.jpg", "✏️ Pensil")
+            "eraser": ("eraser_sample.jpg", "Eraser"),
+            "kertas": ("kertas_sample.jpg", "Kertas"),
+            "pensil": ("pensil_sample.jpg", "Pensil")
         }
+        
+        # Ukuran tetap untuk semua sample images
+        SAMPLE_SIZE = (200, 150)
         
         for col, (key, (filename, label)) in zip([col1, col2, col3], sample_files.items()):
             filepath = samples_dir / filename
             if filepath.exists():
                 with col:
                     img = Image.open(filepath)
-                    st.image(img, caption=label, use_container_width=True)
+                    # Resize ke ukuran yang sama
+                    img_resized = resize_sample_image(img, SAMPLE_SIZE)
+                    st.image(img_resized, caption=label, use_container_width=True)
                     if st.button(f"Coba {label}", key=f"try_{key}", use_container_width=True):
                         st.session_state.selected_sample = key
-                        st.session_state.sample_image = img
+                        st.session_state.sample_image = img  # Simpan gambar asli untuk prediksi
         
         # Process selected sample
         if "sample_image" in st.session_state and st.session_state.sample_image is not None:
@@ -643,7 +667,7 @@ def render_sample_section():
                 st.session_state.sample_image,
                 f"Sample: {st.session_state.selected_sample}"
             )
-            if st.button("🔄 Reset", use_container_width=True):
+            if st.button("Reset", use_container_width=True):
                 st.session_state.sample_image = None
                 st.session_state.selected_sample = None
                 st.rerun()
