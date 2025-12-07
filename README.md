@@ -2,7 +2,7 @@
 
 Klasifikasi Alat Tulis Kantor dengan AI - Powered by Deep Learning
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://atk-classifier-ai.streamlit.app)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://cnn-atk.streamlit.app)
 
 ## 🎯 Fitur
 
@@ -16,7 +16,7 @@ Upload atau foto gambar ATK, langsung dapat hasil klasifikasi:
 
 ## 🚀 Demo Online
 
-Langsung coba: **[atk-classifier-ai.streamlit.app](https://atk-classifier-ai.streamlit.app)**
+Langsung coba: **[cnn-atk.streamlit.app](https://cnn-atk.streamlit.app)**
 
 ## 💻 Jalankan Lokal
 
@@ -28,10 +28,10 @@ cd cnn-custom-datagambar
 # Install
 pip install -r requirements.txt
 
-# Download model (first time)
+# Download model (pertama kali)
 python download_model.py
 
-# Run
+# Jalankan
 streamlit run streamlit_app.py
 ```
 
@@ -39,22 +39,26 @@ streamlit run streamlit_app.py
 
 - **Arsitektur**: CNN (3 Conv layers)
 - **Input**: 300×300 pixels
-- **Accuracy**: ~88%
+- **Akurasi**: ~88%
 
 ## 📁 Struktur
 
 ```
-├── app/
-│   ├── main.py              # Main app
-│   ├── config.py            # Config
-│   └── components/          # UI components
-├── models/
-│   ├── best_model.keras     # Trained model
-│   ├── cnn_model.py         # Model architecture
-│   └── inference.py         # Prediction pipeline
-├── streamlit_app.py         # Entry point
-└── requirements.txt
+├── app/                    # Aplikasi Streamlit
+├── models/                 # Model ML
+├── tests/                  # Unit tests
+├── samples/               # Contoh gambar
+├── docs/                  # Dokumentasi
+└── streamlit_app.py       # Entry point
 ```
+
+## 📚 Dokumentasi
+
+| Dokumen | Deskripsi |
+|---------|-----------|
+| [Arsitektur](docs/ARSITEKTUR.md) | Struktur model & project |
+| [Pengembangan](docs/PENGEMBANGAN.md) | Panduan setup & testing |
+| [Training](docs/TRAINING.md) | Panduan melatih/memperbaiki model |
 
 ## 🛠️ Tech Stack
 
@@ -63,15 +67,10 @@ streamlit run streamlit_app.py
 - Pillow
 - Plotly
 
-## 📚 Documentation
-
-- [Architecture](docs/ARCHITECTURE.md) - Model & project structure
-- [Development](docs/DEVELOPMENT.md) - Setup & testing guide
-
-## 📄 License
+## 📄 Lisensi
 
 MIT
 
 ---
 
-**Made with ❤️ by Hash-SD**
+**Dibuat dengan ❤️ oleh Hash-SD**
