@@ -6,6 +6,33 @@ from dataclasses import dataclass, field
 from typing import List, Tuple
 
 
+def ensure_model_exists():
+    """Download model from Google Drive if not exists."""
+    model_path = Path("models/best_model.keras")
+    
+    if model_path.exists() and model_path.stat().st_size > 50 * 1024 * 1024:
+        return True  # Model exists and is valid (>50MB)
+    
+    try:
+        import gdown
+        
+        # Google Drive file ID
+        file_id = "1pmZlycIZl6B6EMH1V31NNI29w6128DcV"
+        url = f"https://drive.google.com/uc?id={file_id}"
+        
+        model_path.parent.mkdir(exist_ok=True)
+        gdown.download(url, str(model_path), quiet=False)
+        
+        return model_path.exists()
+    except Exception as e:
+        print(f"Failed to download model: {e}")
+        return False
+
+
+# Auto-download model on import
+ensure_model_exists()
+
+
 @dataclass
 class Settings:
     """Application settings and configuration."""
