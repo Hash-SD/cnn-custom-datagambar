@@ -1,9 +1,9 @@
 [theme]
-# Color Psychology: Biru produktif + aksen oranye kreatif
-primaryColor = "#0083B8"
-backgroundColor = "#FAFBFC"
-secondaryBackgroundColor = "#F0F4F8"
-textColor = "#1A202C"
+# CogniDesk Theme - Deep Ocean Blue
+primaryColor = "#0E4C92"
+backgroundColor = "#F8F9FA"
+secondaryBackgroundColor = "#F0F2F5"
+textColor = "#333333"
 font = "sans serif"
 
 [server]

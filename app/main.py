@@ -1,6 +1,6 @@
 """
-ATK Classifier - Eye-Catching & User-Friendly Interface
-Menerapkan prinsip psikologi pengguna: Hick's Law, Gestalt, Doherty Threshold
+CogniDesk 🧠 - AI Stationery Detector
+Minimalist Modern, Clean Dashboard, Professional
 """
 import streamlit as st
 from PIL import Image
@@ -12,434 +12,525 @@ from app.components.predictor import PredictionEngine
 
 # Page configuration - HARUS di baris pertama
 st.set_page_config(
-    page_title="Deteksi Alat Tulis Pintar",
-    page_icon="✏️",
+    page_title="CogniDesk - AI Stationery Detector",
+    page_icon="🧠",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 
 def inject_custom_css():
-    """Inject CSS untuk UI yang bersih, eye-catching, dan responsive."""
+    """Inject CSS untuk CogniDesk - Minimalist Modern Dashboard."""
     st.markdown("""
     <style>
-        /* Hide Streamlit branding untuk tampilan profesional */
+        /* ============ HIDE STREAMLIT BRANDING ============ */
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
         header {visibility: hidden;}
         
-        /* Main container styling */
+        /* ============ ROOT VARIABLES ============ */
+        :root {
+            --primary: #0E4C92;
+            --primary-light: #1565C0;
+            --accent: #008080;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --bg-main: #F8F9FA;
+            --bg-surface: #FFFFFF;
+            --bg-sidebar: #F0F2F5;
+            --text-primary: #333333;
+            --text-secondary: #6B7280;
+            --text-muted: #9CA3AF;
+            --border: #E5E7EB;
+            --shadow: rgba(0, 0, 0, 0.08);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+        
+        /* ============ MAIN LAYOUT ============ */
         .main {
-            background: linear-gradient(180deg, #FAFBFC 0%, #F0F4F8 100%);
+            background: var(--bg-main);
         }
         
         .block-container {
-            padding-top: 1rem;
-            padding-bottom: 2rem;
-            padding-left: 1rem;
-            padding-right: 1rem;
-            max-width: 1200px;
+            padding: 1.5rem 2rem 2rem 2rem;
+            max-width: 100%;
         }
         
-        /* ============ RESPONSIVE HERO SECTION ============ */
-        .hero-container {
+        /* ============ SIDEBAR STYLING ============ */
+        [data-testid="stSidebar"] {
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+        }
+        
+        [data-testid="stSidebar"] > div:first-child {
+            padding: 1.5rem 1rem;
+        }
+        
+        /* ============ LOGO HEADER ============ */
+        .logo-container {
             text-align: center;
-            padding: 2rem 1rem;
-            background: linear-gradient(135deg, #0083B8 0%, #00B4DB 50%, #48C6EF 100%);
-            border-radius: 16px;
-            color: white;
+            padding: 1rem 0 1.5rem 0;
+            border-bottom: 1px solid var(--border);
             margin-bottom: 1.5rem;
-            box-shadow: 0 10px 40px rgba(0, 131, 184, 0.3);
         }
         
-        .hero-title {
-            font-size: clamp(1.5rem, 5vw, 2.8rem);
+        .logo-text {
+            font-size: 1.6rem;
             font-weight: 800;
+            color: var(--primary);
             margin: 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-            line-height: 1.2;
+            letter-spacing: -0.5px;
         }
         
-        .hero-subtitle {
-            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
-            opacity: 0.95;
-            margin-top: 0.8rem;
-            font-weight: 300;
-            line-height: 1.4;
+        .logo-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.3rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
-        /* ============ RESPONSIVE UPLOAD CARD ============ */
-        .upload-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem 1rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            border: 2px dashed #E2E8F0;
-            transition: all 0.3s ease;
-            text-align: center;
+        /* ============ SIDEBAR SECTIONS ============ */
+        .sidebar-section {
+            margin-bottom: 1.5rem;
         }
         
-        .upload-card:hover {
-            border-color: #0083B8;
-            box-shadow: 0 8px 30px rgba(0, 131, 184, 0.15);
-        }
-        
-        /* ============ RESPONSIVE RESULT CARD ============ */
-        .result-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem 1rem;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        
-        .result-success {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            color: white;
-            border-radius: 12px;
-            padding: 1.5rem 1rem;
-            text-align: center;
-            box-shadow: 0 8px 30px rgba(17, 153, 142, 0.3);
-        }
-        
-        .result-success div:first-child {
-            font-size: clamp(2.5rem, 8vw, 4rem);
-        }
-        
-        .result-success div:nth-child(2) {
-            font-size: clamp(1.3rem, 4vw, 2rem) !important;
-        }
-        
-        .result-success div:nth-child(3) {
-            font-size: clamp(1rem, 3vw, 1.3rem) !important;
-        }
-        
-        .result-warning {
-            background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%);
-            color: white;
-            border-radius: 12px;
-            padding: 1.5rem 1rem;
-            text-align: center;
-        }
-        
-        .result-warning div:first-child {
-            font-size: clamp(2.5rem, 8vw, 4rem);
-        }
-        
-        .result-warning div:nth-child(2) {
-            font-size: clamp(1.3rem, 4vw, 2rem) !important;
-        }
-        
-        .result-warning div:nth-child(3) {
-            font-size: clamp(1rem, 3vw, 1.3rem) !important;
-        }
-        
-        /* ============ RESPONSIVE CATEGORY CARDS ============ */
-        .category-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1rem;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            border: 2px solid transparent;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            min-height: 100px;
-        }
-        
-        .category-card:hover {
-            border-color: #0083B8;
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(0, 131, 184, 0.2);
-        }
-        
-        .category-emoji {
-            font-size: clamp(2rem, 6vw, 3rem);
-            margin-bottom: 0.3rem;
-        }
-        
-        .category-title {
-            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+        .sidebar-title {
+            font-size: 0.7rem;
             font-weight: 700;
-            color: #1A202C;
-            margin: 0.3rem 0 0.2rem 0;
-        }
-        
-        .category-subtitle {
-            font-size: clamp(0.75rem, 2vw, 0.9rem);
-            color: #718096;
-        }
-        
-        /* ============ RESPONSIVE BUTTONS ============ */
-        .stButton > button {
-            width: 100%;
-            border-radius: 10px;
-            height: auto;
-            min-height: 2.8em;
-            padding: 0.6rem 1rem;
-            font-weight: 600;
-            font-size: clamp(0.85rem, 2.5vw, 1rem);
-            background: linear-gradient(135deg, #0083B8 0%, #00B4DB 100%);
-            color: white;
-            border: none;
-            box-shadow: 0 4px 15px rgba(0, 131, 184, 0.3);
-            transition: all 0.3s ease;
-        }
-        
-        .stButton > button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 131, 184, 0.4);
-        }
-        
-        .stButton > button:active {
-            transform: translateY(0);
-        }
-        
-        /* ============ FILE UPLOADER RESPONSIVE ============ */
-        .stFileUploader > div > div {
-            border-radius: 10px;
-        }
-        
-        .stFileUploader label {
-            font-size: clamp(0.85rem, 2.5vw, 1rem) !important;
-        }
-        
-        /* ============ PROGRESS BAR ============ */
-        .stProgress > div > div {
-            background: linear-gradient(90deg, #0083B8 0%, #00B4DB 100%);
-            border-radius: 10px;
-        }
-        
-        /* ============ RESPONSIVE METRICS ============ */
-        [data-testid="stMetricValue"] {
-            font-size: clamp(1.2rem, 4vw, 2rem);
-            font-weight: 700;
-            color: #0083B8;
-        }
-        
-        [data-testid="stMetricLabel"] {
-            font-size: clamp(0.75rem, 2vw, 0.9rem);
-        }
-        
-        /* ============ ALERTS ============ */
-        .stAlert {
-            border-radius: 10px;
-            font-size: clamp(0.85rem, 2.5vw, 1rem);
-        }
-        
-        /* ============ RESPONSIVE TABS ============ */
-        .stTabs [data-baseweb="tab-list"] {
-            gap: 4px;
-            flex-wrap: wrap;
-        }
-        
-        .stTabs [data-baseweb="tab"] {
-            border-radius: 8px;
-            padding: 8px 12px;
-            font-size: clamp(0.8rem, 2.5vw, 1rem);
-        }
-        
-        /* ============ CONFIDENCE BAR ============ */
-        .confidence-bar {
-            background: #E2E8F0;
-            border-radius: 8px;
-            height: 10px;
-            overflow: hidden;
-            margin: 0.4rem 0;
-        }
-        
-        .confidence-fill {
-            height: 100%;
-            border-radius: 8px;
-            transition: width 0.5s ease;
-        }
-        
-        .confidence-high {
-            background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);
-        }
-        
-        .confidence-medium {
-            background: linear-gradient(90deg, #f39c12 0%, #f1c40f 100%);
-        }
-        
-        .confidence-low {
-            background: linear-gradient(90deg, #e74c3c 0%, #c0392b 100%);
-        }
-        
-        /* ============ RESPONSIVE FUN FACT CARD ============ */
-        .fun-fact-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 10px;
-            padding: 0.8rem 1rem;
-            margin-top: 1rem;
-            font-size: clamp(0.8rem, 2.5vw, 0.95rem);
-            line-height: 1.4;
-        }
-        
-        /* ============ RESPONSIVE FOOTER ============ */
-        .footer {
-            text-align: center;
-            color: #718096;
-            font-size: clamp(0.75rem, 2vw, 0.85rem);
-            padding: 1.5rem 0 1rem 0;
-            margin-top: 1.5rem;
-            border-top: 1px solid #E2E8F0;
-        }
-        
-        .footer a {
-            color: #0083B8;
-            text-decoration: none;
-        }
-        
-        /* ============ RESPONSIVE WAITING STATE ============ */
-        .waiting-state {
-            text-align: center;
-            padding: 2rem 1rem;
-            color: #718096;
-        }
-        
-        .waiting-icon {
-            font-size: clamp(2.5rem, 8vw, 4rem);
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
             margin-bottom: 0.8rem;
-            opacity: 0.5;
         }
         
-        .waiting-state p {
-            font-size: clamp(0.85rem, 2.5vw, 1rem);
-            margin: 0.3rem 0;
+        .sidebar-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 1.5rem 0;
         }
         
-        /* ============ RESPONSIVE STEP INDICATOR ============ */
-        .step-indicator {
+        /* ============ TEAM MEMBER CARD ============ */
+        .team-member {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.8rem;
-            flex-wrap: wrap;
+            gap: 0.6rem;
+            padding: 0.5rem 0;
+            color: var(--text-primary);
+            font-size: 0.9rem;
         }
         
-        .step-number {
-            background: #0083B8;
+        .team-avatar {
+            width: 28px;
+            height: 28px;
+            background: var(--primary);
             color: white;
-            width: clamp(24px, 5vw, 28px);
-            height: clamp(24px, 5vw, 28px);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
-            font-size: clamp(0.75rem, 2vw, 0.9rem);
-            flex-shrink: 0;
-        }
-        
-        .step-text {
+            font-size: 0.75rem;
             font-weight: 600;
-            color: #1A202C;
-            font-size: clamp(0.9rem, 2.5vw, 1rem);
         }
         
-        /* ============ MOBILE SPECIFIC (< 768px) ============ */
+        /* ============ MAIN HEADER ============ */
+        .main-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .main-title {
+            font-size: clamp(1.5rem, 4vw, 2.2rem);
+            font-weight: 800;
+            color: var(--text-primary);
+            margin: 0 0 0.5rem 0;
+        }
+        
+        .main-subtitle {
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            color: var(--text-secondary);
+            margin: 0;
+        }
+        
+        /* ============ INPUT METHOD CARDS ============ */
+        .input-cards-container {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .input-card {
+            background: var(--bg-surface);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 2rem 3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 180px;
+            flex: 1;
+            max-width: 250px;
+        }
+        
+        .input-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 8px 25px var(--shadow);
+            transform: translateY(-3px);
+        }
+        
+        .input-card-icon {
+            font-size: 3rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .input-card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        /* ============ TWIN FRAMES (RESULT SECTION) ============ */
+        .twin-frames {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .frame {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 4px 20px var(--shadow);
+            overflow: hidden;
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .frame-header {
+            padding: 0.8rem 1rem;
+            background: var(--bg-sidebar);
+            border-bottom: 1px solid var(--border);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .frame-content {
+            padding: 1.5rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* ============ IMAGE FRAME ============ */
+        .image-frame img {
+            max-width: 100%;
+            max-height: 280px;
+            object-fit: contain;
+            border-radius: var(--radius-md);
+        }
+        
+        /* ============ ANALYSIS FRAME ============ */
+        .analysis-result {
+            text-align: center;
+            width: 100%;
+        }
+        
+        .result-emoji {
+            font-size: 4rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .result-label {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            font-weight: 800;
+            color: var(--success);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+        
+        .result-label.warning {
+            color: var(--warning);
+        }
+        
+        .confidence-container {
+            margin: 1.5rem 0;
+            width: 100%;
+        }
+        
+        .confidence-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .confidence-text {
+            color: var(--text-secondary);
+        }
+        
+        .confidence-value {
+            font-weight: 700;
+            color: var(--success);
+        }
+        
+        .confidence-bar-bg {
+            height: 12px;
+            background: var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .confidence-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+        
+        .confidence-bar-fill.high {
+            background: linear-gradient(90deg, #10B981 0%, #34D399 100%);
+        }
+        
+        .confidence-bar-fill.medium {
+            background: linear-gradient(90deg, #F59E0B 0%, #FBBF24 100%);
+        }
+        
+        .confidence-bar-fill.low {
+            background: linear-gradient(90deg, #EF4444 0%, #F87171 100%);
+        }
+        
+        /* ============ DETAIL PREDICTIONS ============ */
+        .detail-predictions {
+            width: 100%;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        .detail-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.8rem;
+        }
+        
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 0.6rem;
+            font-size: 0.9rem;
+        }
+        
+        .detail-item-emoji {
+            font-size: 1.2rem;
+        }
+        
+        .detail-item-name {
+            flex: 1;
+            color: var(--text-primary);
+        }
+        
+        .detail-item-value {
+            font-weight: 600;
+        }
+        
+        /* ============ PLACEHOLDER STATE ============ */
+        .placeholder-state {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 2rem;
+        }
+        
+        .placeholder-icon {
+            font-size: 4rem;
+            opacity: 0.3;
+            margin-bottom: 1rem;
+        }
+        
+        .placeholder-text {
+            font-size: 0.95rem;
+        }
+        
+        /* ============ BUTTONS ============ */
+        .stButton > button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 0.7rem 1.5rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(14, 76, 146, 0.3);
+        }
+        
+        .stButton > button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(14, 76, 146, 0.4);
+        }
+        
+        /* ============ TABS ============ */
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 0;
+            background: var(--bg-sidebar);
+            border-radius: var(--radius-md);
+            padding: 4px;
+        }
+        
+        .stTabs [data-baseweb="tab"] {
+            border-radius: var(--radius-sm);
+            padding: 0.6rem 1.2rem;
+            font-weight: 500;
+        }
+        
+        .stTabs [aria-selected="true"] {
+            background: var(--bg-surface);
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+        
+        /* ============ FILE UPLOADER ============ */
+        .stFileUploader {
+            background: var(--bg-surface);
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .stFileUploader:hover {
+            border-color: var(--primary);
+        }
+        
+        /* ============ EXPANDER ============ */
+        .streamlit-expanderHeader {
+            background: var(--bg-surface);
+            border-radius: var(--radius-md);
+            font-weight: 600;
+        }
+        
+        /* ============ ALERTS ============ */
+        .stAlert {
+            border-radius: var(--radius-md);
+        }
+        
+        /* ============ RESPONSIVE - MOBILE ============ */
         @media (max-width: 768px) {
             .block-container {
-                padding-left: 0.5rem;
-                padding-right: 0.5rem;
+                padding: 1rem;
             }
             
-            .hero-container {
-                padding: 1.5rem 0.8rem;
-                border-radius: 12px;
-                margin-bottom: 1rem;
+            .twin-frames {
+                grid-template-columns: 1fr;
             }
             
-            .category-card {
-                padding: 0.8rem 0.5rem;
-                min-height: 80px;
+            .input-cards-container {
+                flex-direction: column;
+                align-items: center;
             }
             
-            .upload-card {
-                padding: 1rem 0.8rem;
+            .input-card {
+                max-width: 100%;
+                padding: 1.5rem 2rem;
             }
             
-            .result-card, .result-success, .result-warning {
-                padding: 1.2rem 0.8rem;
+            .frame {
+                min-height: auto;
             }
             
-            .fun-fact-card {
-                padding: 0.7rem 0.8rem;
-            }
-            
-            /* Stack columns on mobile */
-            [data-testid="column"] {
-                width: 100% !important;
-                flex: 1 1 100% !important;
+            [data-testid="stSidebar"] {
+                min-width: 100% !important;
             }
         }
         
-        /* ============ SMALL MOBILE (< 480px) ============ */
-        @media (max-width: 480px) {
-            .hero-container {
-                padding: 1.2rem 0.6rem;
-                margin-bottom: 0.8rem;
-            }
-            
-            .category-card {
-                padding: 0.6rem 0.4rem;
-                min-height: 70px;
-            }
-            
-            .stTabs [data-baseweb="tab"] {
-                padding: 6px 10px;
-            }
-        }
-        
-        /* ============ TABLET (768px - 1024px) ============ */
+        /* ============ RESPONSIVE - TABLET ============ */
         @media (min-width: 768px) and (max-width: 1024px) {
             .block-container {
-                padding-left: 1.5rem;
-                padding-right: 1.5rem;
-            }
-        }
-        
-        /* ============ LARGE SCREENS (> 1200px) ============ */
-        @media (min-width: 1200px) {
-            .block-container {
-                padding-left: 2rem;
-                padding-right: 2rem;
+                padding: 1.5rem;
             }
             
-            .hero-container {
-                padding: 3rem 2rem;
+            .input-card {
+                padding: 1.5rem 2rem;
             }
-        }
-        
-        /* ============ CAMERA INPUT RESPONSIVE ============ */
-        .stCameraInput > div {
-            border-radius: 10px;
-        }
-        
-        .stCameraInput video {
-            border-radius: 10px;
-            max-width: 100%;
-        }
-        
-        /* ============ IMAGE RESPONSIVE ============ */
-        .stImage img {
-            border-radius: 10px;
-            max-width: 100%;
-            height: auto;
-        }
-        
-        /* ============ EXPANDER RESPONSIVE ============ */
-        .streamlit-expanderHeader {
-            font-size: clamp(0.9rem, 2.5vw, 1rem);
-        }
-        
-        .streamlit-expanderContent {
-            font-size: clamp(0.85rem, 2.5vw, 0.95rem);
         }
     </style>
     """, unsafe_allow_html=True)
+
+
+def render_sidebar():
+    """Render sidebar dengan logo, panduan, dan tim pengembang."""
+    with st.sidebar:
+        # Logo Header
+        st.markdown("""
+        <div class="logo-container">
+            <h1 class="logo-text">🧠 CogniDesk</h1>
+            <p class="logo-subtitle">AI Stationery Detector</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Panduan Section
+        st.markdown('<p class="sidebar-title">📖 Panduan Input</p>', unsafe_allow_html=True)
+        
+        with st.expander("Cara Mendapatkan Hasil Terbaik", expanded=False):
+            st.markdown("""
+            **📸 Tips Foto:**
+            - Gunakan pencahayaan yang cukup
+            - Pastikan objek tidak blur
+            - Gunakan background polos
+            - Posisikan objek di tengah frame
+            
+            **📁 Format File:**
+            - JPG, JPEG, atau PNG
+            - Maksimal ukuran 5MB
+            - Satu objek per gambar
+            """)
+        
+        # Divider
+        st.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
+        
+        # Kategori yang Didukung
+        st.markdown('<p class="sidebar-title">🏷️ Kategori Didukung</p>', unsafe_allow_html=True)
+        
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.markdown("🧹<br><small>Eraser</small>", unsafe_allow_html=True)
+        with col2:
+            st.markdown("📄<br><small>Kertas</small>", unsafe_allow_html=True)
+        with col3:
+            st.markdown("✏️<br><small>Pensil</small>", unsafe_allow_html=True)
+        
+        # Divider
+        st.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
+        
+        # Tim Pengembang
+        st.markdown('<p class="sidebar-title">👥 Tim Pengembang</p>', unsafe_allow_html=True)
+        
+        team_members = ["Izza", "Haikal", "Hermawan"]
+        for member in team_members:
+            initial = member[0].upper()
+            st.markdown(f"""
+            <div class="team-member">
+                <div class="team-avatar">{initial}</div>
+                <span>{member}</span>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        # Footer
+        st.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
+        st.caption("© 2024 CogniDesk v1.0")
 
 
 @st.cache_resource
@@ -448,223 +539,157 @@ def get_prediction_engine():
     return PredictionEngine()
 
 
-def render_hero():
-    """Render hero section - fokus pada satu aksi utama."""
+def render_main_header():
+    """Render main content header."""
     st.markdown("""
-    <div class="hero-container">
-        <h1 class="hero-title">✏️ Deteksi Alat Tulis Pintar</h1>
-        <p class="hero-subtitle">
-            Identifikasi Pensil, Penghapus, atau Kertas dalam Hitungan Detik dengan AI
-        </p>
+    <div class="main-header">
+        <h1 class="main-title">Identifikasi Alat Tulis Anda</h1>
+        <p class="main-subtitle">Upload gambar atau ambil foto untuk mendeteksi jenis alat tulis</p>
     </div>
     """, unsafe_allow_html=True)
 
 
-def render_categories():
-    """Show supported categories - Gestalt principle."""
-    col1, col2, col3 = st.columns(3)
-    
-    categories = [
-        {"emoji": "🧹", "title": "Eraser", "subtitle": "Penghapus"},
-        {"emoji": "📄", "title": "Kertas", "subtitle": "Paper"},
-        {"emoji": "✏️", "title": "Pensil", "subtitle": "Pencil"}
-    ]
-    
-    for col, cat in zip([col1, col2, col3], categories):
-        with col:
-            st.markdown(f"""
-            <div class="category-card">
-                <div class="category-emoji">{cat['emoji']}</div>
-                <div class="category-title">{cat['title']}</div>
-                <div class="category-subtitle">{cat['subtitle']}</div>
-            </div>
-            """, unsafe_allow_html=True)
+def get_emoji_for_class(class_name: str) -> str:
+    """Get emoji for predicted class."""
+    emoji_map = {"eraser": "🧹", "kertas": "📄", "pensil": "✏️"}
+    return emoji_map.get(class_name.lower(), "🏷️")
 
 
-def get_fun_fact(predicted_class: str) -> str:
-    """Get fun fact berdasarkan hasil prediksi - Delight Factor."""
-    facts = {
-        "pensil": "💡 Tahukah kamu? Satu pensil bisa menulis sekitar 45.000 kata atau menarik garis sepanjang 56 km!",
-        "eraser": "💡 Tahukah kamu? Sebelum penghapus ditemukan, orang menggunakan roti untuk menghapus tulisan pensil!",
-        "kertas": "💡 Tahukah kamu? Kertas pertama kali ditemukan di Tiongkok sekitar tahun 105 Masehi oleh Cai Lun!"
-    }
-    return facts.get(predicted_class.lower(), "")
+def get_confidence_class(percentage: float) -> str:
+    """Get CSS class based on confidence level."""
+    if percentage >= 80:
+        return "high"
+    elif percentage >= 50:
+        return "medium"
+    return "low"
 
 
-def render_result_card(result, emoji: str):
-    """Render hasil prediksi dengan visualisasi menarik."""
-    # Determine confidence level untuk warna
-    conf_class = "confidence-high" if result.percentage >= 80 else "confidence-medium" if result.percentage >= 50 else "confidence-low"
-    card_class = "result-success" if not result.is_low_confidence else "result-warning"
+def render_analysis_result(result):
+    """Render analysis result in the right frame."""
+    emoji = get_emoji_for_class(result.predicted_class)
+    conf_class = get_confidence_class(result.percentage)
+    label_class = "" if result.percentage >= 50 else "warning"
     
     st.markdown(f"""
-    <div class="{card_class}">
-        <div style="font-size: 4rem; margin-bottom: 0.5rem;">{emoji}</div>
-        <div style="font-size: 2rem; font-weight: 800; margin-bottom: 0.3rem;">
-            {result.predicted_class.upper()}
-        </div>
-        <div style="font-size: 1.3rem; opacity: 0.95;">
-            Tingkat Keyakinan: {result.percentage:.1f}%
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Fun fact - Delight factor
-    fun_fact = get_fun_fact(result.predicted_class)
-    if fun_fact and not result.is_low_confidence:
-        st.markdown(f"""
-        <div class="fun-fact-card">
-            {fun_fact}
-        </div>
-        """, unsafe_allow_html=True)
-
-
-def render_prediction_details(result):
-    """Render detail prediksi dengan progress bars."""
-    emoji_map = {"eraser": "🧹", "kertas": "📄", "pensil": "✏️"}
-    
-    st.markdown("##### 📊 Detail Semua Prediksi")
-    
-    for pred in result.top_predictions:
-        emoji = emoji_map.get(pred["class"].lower(), "🏷️")
-        conf = pred["confidence"]
-        pct = pred["percentage"]
+    <div class="analysis-result">
+        <div class="result-emoji">{emoji}</div>
+        <div class="result-label {label_class}">{result.predicted_class} Detected</div>
         
-        # Determine color class
-        if pct >= 80:
-            color = "#11998e"
-        elif pct >= 50:
-            color = "#f39c12"
-        else:
-            color = "#e74c3c"
-        
-        col1, col2 = st.columns([4, 1])
-        with col1:
-            st.markdown(f"""
-            <div style="margin-bottom: 0.8rem;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <span style="font-weight: 600;">{emoji} {pred['class']}</span>
-                    <span style="color: {color}; font-weight: 700;">{pct:.1f}%</span>
-                </div>
-                <div class="confidence-bar">
-                    <div class="confidence-fill" style="width: {pct}%; background: {color};"></div>
-                </div>
+        <div class="confidence-container">
+            <div class="confidence-label">
+                <span class="confidence-text">Confidence Level</span>
+                <span class="confidence-value">{result.percentage:.1f}%</span>
             </div>
-            """, unsafe_allow_html=True)
-
-
-def process_image(image: Image.Image, source_name: str = ""):
-    """Process dan prediksi gambar dengan layout responsive."""
-    try:
-        # Gambar yang diupload
-        st.markdown("""
-        <div class="step-indicator">
-            <div class="step-number">1</div>
-            <span class="step-text">Gambar Anda</span>
+            <div class="confidence-bar-bg">
+                <div class="confidence-bar-fill {conf_class}" style="width: {result.percentage}%;"></div>
+            </div>
         </div>
-        """, unsafe_allow_html=True)
         
-        st.image(image, caption=source_name, use_container_width=True)
-        
-        st.markdown("<br>", unsafe_allow_html=True)
-        
-        # Hasil Analisis
-        st.markdown("""
-        <div class="step-indicator">
-            <div class="step-number">2</div>
-            <span class="step-text">Hasil Analisis</span>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        engine = get_prediction_engine()
-        
-        # Spinner dengan pesan yang manusiawi - Doherty Threshold
-        with st.spinner("🤖 Sedang menganalisis gambar..."):
-            result = engine.predict(image, top_k=3)
-        
-        # Demo mode warning
-        if result.is_demo:
-            st.warning("⚠️ Mode Demo - Model sedang dimuat, hasil adalah simulasi")
-            return
-        
-        # Get emoji for result
-        emoji_map = {"eraser": "🧹", "kertas": "📄", "pensil": "✏️"}
-        result_emoji = emoji_map.get(result.predicted_class.lower(), "🏷️")
-        
-        # Render result card
-        render_result_card(result, result_emoji)
-        
-        # Low confidence warning dengan pesan manusiawi
-        if result.is_low_confidence:
-            st.warning("🤔 Hmm, saya kurang yakin dengan hasil ini. Coba gunakan gambar yang lebih jelas ya!")
-        
-        # Detail predictions
-        st.markdown("<br>", unsafe_allow_html=True)
-        render_prediction_details(result)
-                    
-    except Exception as e:
-        # Error handling yang manusiawi
-        st.error(f"😅 Ups, terjadi kesalahan: {str(e)}")
-        st.info("💡 Tips: Pastikan gambar dalam format JPG atau PNG dan tidak corrupt.")
-
-
-def render_upload_section():
-    """Render upload section - Hick's Law: fokus pada satu aksi."""
-    st.markdown("---")
-    
-    # Step indicator
-    st.markdown("""
-    <div class="step-indicator">
-        <div class="step-number">📸</div>
-        <span class="step-text">Upload atau Ambil Foto Alat Tulis</span>
-    </div>
+        <div class="detail-predictions">
+            <div class="detail-title">All Predictions</div>
     """, unsafe_allow_html=True)
     
-    tab1, tab2 = st.tabs(["📁 Upload File", "📷 Gunakan Kamera"])
+    # Detail predictions
+    for pred in result.top_predictions:
+        pred_emoji = get_emoji_for_class(pred["class"])
+        pct = pred["percentage"]
+        conf_class = get_confidence_class(pct)
+        
+        color = "#10B981" if pct >= 80 else "#F59E0B" if pct >= 50 else "#EF4444"
+        
+        st.markdown(f"""
+        <div class="detail-item">
+            <span class="detail-item-emoji">{pred_emoji}</span>
+            <span class="detail-item-name">{pred['class']}</span>
+            <span class="detail-item-value" style="color: {color};">{pct:.1f}%</span>
+        </div>
+        """, unsafe_allow_html=True)
     
-    with tab1:
-        # Upload area
-        st.markdown('<div class="upload-card">', unsafe_allow_html=True)
+    st.markdown("</div></div>", unsafe_allow_html=True)
+
+
+def render_twin_frames(image: Image.Image, source_name: str):
+    """Render twin frames layout - Image & Analysis side by side."""
+    engine = get_prediction_engine()
+    
+    # Process prediction
+    with st.spinner("🧠 Menganalisis gambar..."):
+        result = engine.predict(image, top_k=3)
+    
+    # Demo mode check
+    if result.is_demo:
+        st.warning("⚠️ Mode Demo - Model sedang dimuat, hasil adalah simulasi")
+        return
+    
+    # Twin Frames Layout
+    col_image, col_analysis = st.columns(2)
+    
+    with col_image:
+        st.markdown('<div class="frame-header">📷 Input Gambar</div>', unsafe_allow_html=True)
+        st.image(image, caption=source_name, use_container_width=True)
+    
+    with col_analysis:
+        st.markdown('<div class="frame-header">🔍 Hasil Analisis</div>', unsafe_allow_html=True)
+        render_analysis_result(result)
+        
+        # Low confidence warning
+        if result.is_low_confidence:
+            st.warning("🤔 Confidence rendah - coba gunakan gambar yang lebih jelas")
+
+
+def render_input_section():
+    """Render input section with tabs."""
+    tab_upload, tab_camera = st.tabs(["📁 Upload File", "📷 Ambil Foto"])
+    
+    with tab_upload:
         uploaded_file = st.file_uploader(
-            "Seret & lepas gambar di sini",
+            "Seret & lepas gambar di sini, atau klik untuk memilih",
             type=["jpg", "jpeg", "png"],
             help="Format: JPG, JPEG, PNG. Maksimal: 5MB",
             label_visibility="visible"
         )
-        st.caption("📌 Tip: Gunakan gambar dengan pencahayaan yang baik")
-        st.markdown('</div>', unsafe_allow_html=True)
         
-        # Result area
         if uploaded_file:
-            st.markdown("<br>", unsafe_allow_html=True)
             try:
                 image = Image.open(uploaded_file)
-                process_image(image, uploaded_file.name)
-            except Exception as e:
-                st.error("😕 Ups, sepertinya itu bukan gambar yang valid. Silakan coba format JPG atau PNG.")
+                st.markdown("---")
+                render_twin_frames(image, uploaded_file.name)
+            except Exception:
+                st.error("😕 File tidak valid. Pastikan format gambar JPG atau PNG.")
+        else:
+            # Placeholder state
+            st.markdown("""
+            <div class="placeholder-state">
+                <div class="placeholder-icon">🖼️</div>
+                <p class="placeholder-text">Hasil analisis akan muncul di sini setelah upload gambar</p>
+            </div>
+            """, unsafe_allow_html=True)
     
-    with tab2:
-        st.caption("📷 Arahkan kamera ke alat tulis dan ambil foto")
+    with tab_camera:
         camera_image = st.camera_input(
-            "Ambil foto",
-            label_visibility="collapsed"
+            "Arahkan kamera ke alat tulis",
+            label_visibility="visible"
         )
         
-        # Result area
         if camera_image:
-            st.markdown("<br>", unsafe_allow_html=True)
             try:
                 image = Image.open(camera_image)
-                process_image(image, "Foto Kamera")
-            except Exception as e:
-                st.error("😕 Gagal memproses foto dari kamera. Silakan coba lagi.")
+                st.markdown("---")
+                render_twin_frames(image, "Camera Capture")
+            except Exception:
+                st.error("😕 Gagal memproses foto. Silakan coba lagi.")
+        else:
+            st.markdown("""
+            <div class="placeholder-state">
+                <div class="placeholder-icon">📷</div>
+                <p class="placeholder-text">Ambil foto untuk memulai analisis</p>
+            </div>
+            """, unsafe_allow_html=True)
 
 
 def render_sample_section():
     """Render sample images section."""
-    st.markdown("---")
-    
-    with st.expander("🎯 Coba dengan Contoh Gambar", expanded=False):
+    with st.expander("🎯 Coba dengan Contoh Gambar"):
         samples_dir = Path("samples")
         
         if not samples_dir.exists():
@@ -692,54 +717,23 @@ def render_sample_section():
         # Process selected sample
         if "sample_image" in st.session_state and st.session_state.sample_image is not None:
             st.markdown("---")
-            process_image(st.session_state.sample_image, f"Contoh {st.session_state.selected_sample}")
+            render_twin_frames(
+                st.session_state.sample_image,
+                f"Sample: {st.session_state.selected_sample}"
+            )
             if st.button("🔄 Reset", use_container_width=True):
                 st.session_state.sample_image = None
                 st.session_state.selected_sample = None
                 st.rerun()
 
 
-def render_tips():
-    """Render tips section."""
-    with st.expander("💡 Tips untuk Hasil Terbaik"):
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("""
-            **📸 Kualitas Gambar**
-            - Pastikan pencahayaan cukup terang
-            - Hindari gambar blur atau buram
-            - Gunakan background polos jika memungkinkan
-            """)
-        
-        with col2:
-            st.markdown("""
-            **🎯 Posisi Objek**
-            - Letakkan objek di tengah frame
-            - Satu objek per gambar untuk hasil optimal
-            - Pastikan objek terlihat jelas seluruhnya
-            """)
-
-
-def render_footer():
-    """Render footer."""
-    st.markdown("""
-    <div class="footer">
-        <p>🤖 Powered by Deep Learning CNN Model</p>
-        <p>Made with ❤️ by <a href="https://github.com/Hash-SD" target="_blank">Hash-SD</a></p>
-    </div>
-    """, unsafe_allow_html=True)
-
-
 def main():
     """Main app entry point."""
     inject_custom_css()
-    render_hero()
-    render_categories()
-    render_upload_section()
+    render_sidebar()
+    render_main_header()
+    render_input_section()
     render_sample_section()
-    render_tips()
-    render_footer()
 
 
 if __name__ == "__main__":
