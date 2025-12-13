@@ -12,8 +12,8 @@ from app.components.predictor import PredictionEngine
 
 # Page configuration - HARUS di baris pertama
 st.set_page_config(
-    page_title=f"{settings.APP_TITLE} - AI Stationery Detector",
-    page_icon=settings.APP_ICON,
+    page_title="CogniDesk - AI Stationery Detector",
+    page_icon="🧠",
     layout="wide",
     initial_sidebar_state="expanded"
 )
